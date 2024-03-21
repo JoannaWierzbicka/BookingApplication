@@ -1,8 +1,10 @@
-import './background.css'
+import "./background.css";
+import PropTypes from "prop-types";
 
-export const Background = () => {
+export const Background = (props) => {
+  const {children} = props
   return (
-    <div style={{ position: "relative" }}>
+    <div className="fixed top-0 left-0 bg-[#fee440] w-screen h-screen">
       <svg
         preserveAspectRatio="xMidYMid slice"
         viewBox="10 10 80 80"
@@ -59,9 +61,13 @@ export const Background = () => {
           d="M102,67.1c-9.6-6.1-22-3.1-29.5,2-15.4,10.7-19.6,37.5-7.6,47.8s35.9,3.9,44.5-12.5C115.5,92.6,113.9,74.6,102,67.1Z"
         />
       </svg>
-    
+      {children}
     </div>
   );
+};
+
+Background.propTypes = {
+  children: PropTypes.node,
 };
 
 export default Background;
