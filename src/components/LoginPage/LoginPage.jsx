@@ -1,13 +1,33 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
+import signIn from "../../auth/signIn";
+import { validateFormLogIn } from "../../helpers/validation";
+
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const [errorMessages, setErrorMessages] = useState([]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your logic for submitting the form (e.g., API call) here
+    let errors = validateFormLogIn(email, password);
+    setErrorMessages(errors);
+
+    if (errors.length === 0) {
+      try {
+        await signIn(email, password);
+      } catch (error) {
+        if (error.data.error.message === "INVALID_LOGIN_CREDENTIALS") {
+          setErrorMessages(["Wrong email or password"]);
+        }
+      }
+      setEmail("");
+      setPassword("");
+      alert("User logged in");
+
+    }
   };
 
   return (
@@ -37,8 +57,14 @@ export const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             required
-          />
+          />{" "}
+          {errorMessages.map((message, index) => (
+            <div key={index} className="text-red-500 text-sm">
+              {message}
+            </div>
+          ))}
         </div>
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"

@@ -11,7 +11,7 @@ function App() {
       <Route path={"/"} element={<MainPage />}></Route>
       <Route path={"/calendar"} element={<Calendar />}></Route>
       <Route path={"/login"} element={<LoginPage />}></Route>
-      <Route path={"/create-account"} element={<CreateAccountPage/>}></Route>
+      <Route path={"/create-account"} element={<CreateAccountPage />}></Route>
     </Routes>
   );
 }

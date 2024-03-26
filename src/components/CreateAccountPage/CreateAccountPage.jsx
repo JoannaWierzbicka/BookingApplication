@@ -1,51 +1,42 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import signUp from "../../auth/signUp";
-import getUserData from "../../auth/getUserData";
 import createUserId from "../../helpers/createUserId";
 import FireBaseAPI from "../../api/firebaseApi";
 import { validateFormCreate } from "../../helpers/validation";
+import { getIdToken } from "../../auth/token";
 
-export const CreateAccountPage = () => {
+const CreateAccountPage = () => {
   const data = new FireBaseAPI();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [userData, setUserData] = useState("");
   const [errorMessages, setErrorMessages] = useState([]);
-  const [passwordMatchError, setPasswordMatchError] = useState(false);
-
-  const onUserLogin = () => {
-    getUserData().then((data) => {
-      setUserData(data);
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let errors = validateFormCreate(email, password, repeatPassword);
-    if (password !== repeatPassword) {
-      errors = [...errors, "Passwords do not match!"];
-      setPasswordMatchError(true);
-    } else {
-      setPasswordMatchError(false);
-    }
     setErrorMessages(errors);
 
     if (errors.length === 0) {
       try {
         await signUp(email, password);
-        onUserLogin();
-        const newUserId = createUserId(email);
-        await data.addNewUser(newUserId);
-        setEmail("");
-        setPassword("");
-        setRepeatPassword("");
-        alert("Account created successfully!");
       } catch (error) {
-        setErrorMessages([error.message]);
+        if (error.data.error.message === "EMAIL_EXISTS") {
+          setErrorMessages(["Email exists!"]);
+        }
       }
+
+      setEmail("");
+      setPassword("");
+      setRepeatPassword("");
+      alert("Account created successfully!");
+      const newUserId = createUserId(email);
+      const token = getIdToken();
+
+      data.addNewUser(newUserId, token);
     }
   };
 
@@ -117,6 +108,10 @@ export const CreateAccountPage = () => {
       </NavLink>
     </div>
   );
+};
+
+CreateAccountPage.propTypes = {
+  setUserLoggedIn: PropTypes.func,
 };
 
 export default CreateAccountPage;
